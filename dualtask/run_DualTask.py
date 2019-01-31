@@ -35,10 +35,11 @@ hps = {
     'min_learning_rate': 1e-5,
     'log_dir': './logs/',
     'data_hps': {
-        'n_batch': 512,
-        'n_time': 64,
+        'n_batch': 1024,
+        'n_time': 32,
         'n_bits': 3,
-        'noise': 0.1},
+        'noise': 0.1,
+        'gng_time' = 10},
     'alr_hps': alr_hps
     }
 
