@@ -49,8 +49,8 @@ dt.train()
 # Get example state trajectories from the network
 # Visualize inputs, outputs, and RNN predictions from example trials
 example_trials = dt.generate_dualtask_trials()
-dt.plot_trials(example_trials)
-
+f = dt.plot_trials(example_trials)
+f.canvas.draw()
 # *****************************************************************************
 # STEP 2: Find, analyze, and visualize the fixed points of the trained RNN ****
 # *****************************************************************************
@@ -94,9 +94,9 @@ unique_fps, all_fps = fpf.find_fixed_points(initial_states, inputs)
 
 # Visualize identified fixed points with overlaid RNN state trajectories
 # All visualized in the 3D PCA space fit the the example RNN states.
-unique_fps.plot(example_predictions['state'],
-                plot_batch_idx=range(30),
-                plot_start_time=10)
-
+f = unique_fps.plot(example_predictions['state'],
+                    plot_batch_idx=range(30),
+                    plot_start_time=10)
+f.canvas.draw()
 print('Entering debug mode to allow interaction with objects and figures.')
-pdb.set_trace()
+# pdb.set_trace()

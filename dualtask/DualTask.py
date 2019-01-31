@@ -402,7 +402,7 @@ class DualTask(RecurrentWhisperer):
         n_time = self.hps.data_hps['n_time']
         n_plot = np.min([hps.n_trials_plot, n_batch])
 
-        plt.figure(self.fig.number)
+        f = plt.figure(self.fig.number)
         plt.clf()
 
         inputs = data['inputs']
@@ -437,6 +437,7 @@ class DualTask(RecurrentWhisperer):
         plt.ion()
         plt.show()
         plt.pause(1e-10)
+        return f
 
     @staticmethod
     def _plot_single_trial(input_txd, output_txd, pred_output_txd):

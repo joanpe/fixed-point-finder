@@ -12,12 +12,13 @@ from __future__ import print_function
 
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
+# from mpl_toolkits.mplot3d import Axes3D
 
-import pdb
+# import pdb
 import numpy as np
 import cPickle
 import tf_utils
+
 
 class FixedPoints(object):
     '''
@@ -85,7 +86,8 @@ class FixedPoints(object):
             which results in an appropriately sized numpy array of NaNs.
             Default: None.
 
-            do_alloc_nan: Bool indicating whether to initialize all data attributes (all optional args above) as NaN-filled numpy arrays.
+            do_alloc_nan: Bool indicating whether to initialize all data
+            attributes (all optional args above) as NaN-filled numpy arrays.
             If True, n, n_states and n_inputs must be provided. These values
             are otherwise ignored:
 
@@ -132,7 +134,7 @@ class FixedPoints(object):
 
         if do_alloc_nan:
             if n is None:
-                raise ValueError(       'n must be provided if '
+                raise ValueError('n must be provided if '
                                  'do_alloc_nan == True.')
             if n_states is None:
                 raise ValueError('n_states must be provided if '
@@ -221,7 +223,7 @@ class FixedPoints(object):
 
         def unique_rows(x, approx_tol):
             # Quick and dirty. Can update using pdist if necessary
-            d = int(np.round(np.max([0 -np.log10(approx_tol)])))
+            d = int(np.round(np.max([0 - np.log10(approx_tol)])))
             ux, idx = np.unique(x.round(decimals=d),
                                 axis=0,
                                 return_index=True)
@@ -234,7 +236,7 @@ class FixedPoints(object):
                 data = self.xstar
         else:
             raise ValueError('Cannot find unique fixed points because '
-                'self.xstar is None.')
+                             'self.xstar is None.')
 
         unique_data, idx = unique_rows(data, self.tol_unique)
 
@@ -252,7 +254,7 @@ class FixedPoints(object):
 
         if not isinstance(fps, FixedPoints):
             raise TypeError('fps must be a FixedPoints object but was %s.' %
-                type(fps))
+                            type(fps))
 
         if isinstance(index, int):
             # Force the indexing that follows to preserve numpy array ndim
@@ -310,15 +312,15 @@ class FixedPoints(object):
         tol_unique = self.tol_unique
 
         indexed_fps = FixedPoints(xstar,
-            x_init=x_init,
-            inputs=inputs,
-            F_xstar=F_xstar,
-            qstar=qstar,
-            dq=dq,
-            n_iters=n_iters,
-            J_xstar = J_xstar,
-            dtype=dtype,
-            tol_unique=tol_unique)
+                                  x_init=x_init,
+                                  inputs=inputs,
+                                  F_xstar=F_xstar,
+                                  qstar=qstar,
+                                  dq=dq,
+                                  n_iters=n_iters,
+                                  J_xstar=J_xstar,
+                                  dtype=dtype,
+                                  tol_unique=tol_unique)
 
         return indexed_fps
 
@@ -379,11 +381,13 @@ class FixedPoints(object):
         '''Checks whether a specified fixed point is contained in the object.
 
         Args:
-            xstar: [n_states,] or [1, n_states] numpy array specifying the fixed
-            point of interest.
+            xstar: [n_states,] or [1, n_states] numpy array specifying the
+            fixed point of interest.
 
         Returns:
-            bool indicating whether self.xstar contains any fixed point with a maximum elementwise difference from xstar that is less than tol_unique.
+            bool indicating whether self.xstar contains any fixed point with
+            a maximum elementwise difference from xstar that is less than
+            tol_unique.
         '''
         idx = self.find(xstar)
 
@@ -401,7 +405,7 @@ class FixedPoints(object):
         '''
         if self.verbose:
             print('Saving FixedPoints object.')
-        file = open(save_path,'w')
+        file = open(save_path, 'w')
         file.write(cPickle.dumps(self.__dict__))
         file.close
 
@@ -418,7 +422,7 @@ class FixedPoints(object):
         '''
         if self.verbose:
             print('Restoring FixedPoints object.')
-        file = open(restore_path,'r')
+        file = open(restore_path, 'r')
         restore_data = file.read()
         file.close()
         self.__dict__ = cPickle.loads(restore_data)
@@ -455,11 +459,11 @@ class FixedPoints(object):
             print(self.J_xstar)
 
     def plot(self,
-        state_traj=None,
-        plot_batch_idx=None,
-        plot_start_time=0,
-        plot_stop_time=None,
-        mode_scale=0.25):
+             state_traj=None,
+             plot_batch_idx=None,
+             plot_start_time=0,
+             plot_stop_time=None,
+             mode_scale=0.25):
 
         '''Plots a visualization and analysis of the unique fixed points.
 
@@ -523,7 +527,7 @@ class FixedPoints(object):
                 None.
             '''
             n_states = z.shape[1]
-            if n_states ==3:
+            if n_states == 3:
                 ax.plot(z[:, 0], z[:, 1], z[:, 2], **kwargs)
             elif n_states == 2:
                 ax.plot(z[:, 0], z[:, 1], **kwargs)
@@ -531,7 +535,8 @@ class FixedPoints(object):
                 ax.plot(z, **kwargs)
 
         def plot_fixed_point(ax, xstar, J, pca,
-            scale=1.0, max_n_modes=3, do_plot_stable_modes=False):
+                             scale=1.0, max_n_modes=3,
+                             do_plot_stable_modes=False):
             '''Plots a single fixed point and its dominant eigenmodes.
 
             Args:
@@ -540,8 +545,8 @@ class FixedPoints(object):
                 xstar: [1 x n_states] numpy array representing the fixed point
                 to be plotted.
 
-                J: [n_states x n_states] numpy array containing the Jacobian of the
-                RNN transition function at fixed point xstar.
+                J: [n_states x n_states] numpy array containing the Jacobian
+                of the RNN transition function at fixed point xstar.
 
                 pca: PCA object as returned by sklearn.decomposition.PCA. This
                 is used to transform the high-d state space representations
@@ -580,7 +585,7 @@ class FixedPoints(object):
                 if e_val_mag > 1.0 or do_plot_stable_modes:
 
                     # Already real. Cast to avoid warning.
-                    e_vec = np.real(e_vecs[:,idx])
+                    e_vec = np.real(e_vecs[:, idx])
 
                     # [1 x d] numpy arrays
                     xstar_plus = xstar + scale*e_val_mag*e_vec
@@ -616,8 +621,8 @@ class FixedPoints(object):
             plot_123d(
                 ax, zstar, color=color, marker='.', markersize=12)
 
-        FIG_WIDTH = 6 # inches
-        FIG_HEIGHT = 6 # inches
+        FIG_WIDTH = 6  # inches
+        FIG_HEIGHT = 6  # inches
         FONT_WEIGHT = 'bold'
 
         xstar = self.xstar
@@ -652,7 +657,7 @@ class FixedPoints(object):
 
             if state_traj is not None:
                 state_traj_btxd = np.reshape(state_traj_bxtxd,
-                    (n_batch*n_time, n_states))
+                                             (n_batch*n_time, n_states))
                 pca.fit(state_traj_btxd)
             else:
                 pca.fit(xstar)
@@ -698,3 +703,4 @@ class FixedPoints(object):
         plt.ion()
         plt.show()
         plt.pause(1e-10)
+        return fig

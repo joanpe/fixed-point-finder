@@ -9,7 +9,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import pdb
+# import pdb
 import numpy as np
 import numpy.random as npr
 import tensorflow as tf
@@ -21,22 +21,23 @@ from AdaptiveLearningRate import AdaptiveLearningRate
 from AdaptiveGradNormClip import AdaptiveGradNormClip
 import tf_utils
 
+
 class FixedPointFinder(object):
 
     def __init__(self, rnn_cell, sess,
-        tol=1e-20,
-        max_iters=5000,
-        method='joint',
-        do_rerun_outliers=False,
-        outlier_q_scale=10,
-        tol_unique=1e-3,
-        do_compute_jacobians=True,
-        tf_dtype=tf.float32,
-        verbose=True,
-        super_verbose=False,
-        alr_hps=dict(),
-        agnc_hps=dict(),
-        adam_hps={'epsilon': 0.01}):
+                 tol=1e-20,
+                 max_iters=5000,
+                 method='joint',
+                 do_rerun_outliers=False,
+                 outlier_q_scale=10,
+                 tol_unique=1e-3,
+                 do_compute_jacobians=True,
+                 tf_dtype=tf.float32,
+                 verbose=True,
+                 super_verbose=False,
+                 alr_hps=dict(),
+                 agnc_hps=dict(),
+                 adam_hps={'epsilon': 0.01}):
         '''Creates a FixedPointFinder object.
 
         Args:
@@ -170,7 +171,7 @@ class FixedPointFinder(object):
         for init_idx in range(n_inits):
             trial_idx = rng.randint(n_batch)
             time_idx = rng.randint(n_time)
-            states[init_idx,:] = state_traj_bxtxd[trial_idx,time_idx,:]
+            states[init_idx, :] = state_traj_bxtxd[trial_idx, time_idx, :]
 
         # Add IID Gaussian noise to the sampled states
         if noise_scale > 0.0:
@@ -178,7 +179,7 @@ class FixedPointFinder(object):
         elif noise_scale < 0.0:
             raise ValueError('noise_scale must be non-negative,'
                              ' but was %f' % noise_scale)
-        else: # noise_scale == 0 --> don't add noise
+        else:  # noise_scale == 0 --> don't add noise
             pass
 
         if self.is_lstm:
@@ -222,7 +223,7 @@ class FixedPointFinder(object):
                                'from %d initial states.\n' % n)
 
         if inputs.shape[0] == 1:
-            inputs_nxd = np.tile(inputs, [n, 1]) # safe, even if n == 1.
+            inputs_nxd = np.tile(inputs, [n, 1])  # safe, even if n == 1.
         elif inputs.shape[0] == n:
             inputs_nxd = inputs
         else:
@@ -361,10 +362,11 @@ class FixedPointFinder(object):
 
             if is_fresh_start:
                 self._print_if_verbose('\n\tInitialization %d of %d:' %
-                    (init_idx+1, n_inits))
+                                       (init_idx+1, n_inits))
             else:
                 self._print_if_verbose('\n\tOutlier %d of %d (q=%.2e):' %
-                    (init_idx+1, n_inits, q_prior[init_idx]))
+                                       (init_idx+1, n_inits,
+                                        q_prior[init_idx]))
 
             fps[init_idx] = self._run_single_optimization(
                 initial_states_i, inputs_i)
@@ -440,7 +442,7 @@ class FixedPointFinder(object):
         def perform_outlier_optimization(fps, method):
 
             idx_outliers = self.identify_outliers(fps, outlier_min_q)
-            n_outliers = len(idx_outliers)
+            # n_outliers = len(idx_outliers)
 
             outlier_fps = fps[idx_outliers]
             n_prev_iters = outlier_fps.n_iters
@@ -496,7 +498,7 @@ class FixedPointFinder(object):
         outliers.
         '''
         if self.method == 'joint':
-            N_ROUNDS = 0 # consider making this a hyperparameter
+            N_ROUNDS = 0  # consider making this a hyperparameter
             for round in range(N_ROUNDS):
 
                 fps = perform_outlier_optimization(fps, 'joint')
@@ -508,7 +510,7 @@ class FixedPointFinder(object):
         # Always perform a round of sequential optimizations on any (remaining)
         # "outliers".
         fps = perform_outlier_optimization(fps, 'sequential')
-        outlier_update(fps) # For print output only
+        outlier_update(fps)  # For print output only
 
         return fps
 
@@ -567,7 +569,7 @@ class FixedPointFinder(object):
             x = tf.Variable(initial_states, dtype=self.tf_dtype)
             x_rnncell = x
 
-        n = x.shape[0]
+        # n = x.shape[0]
         inputs_tf = tf.constant(inputs, dtype=self.tf_dtype)
 
         output, F_rnncell = self.rnn_cell(inputs_tf, x_rnncell)
@@ -679,7 +681,7 @@ class FixedPointFinder(object):
             print('learning rate = %.2e' % lr, end='')
 
             if is_final:
-                print('') # Just for the endline
+                print('')  # Just for the endline
             else:
                 print('.')
 
@@ -725,8 +727,8 @@ class FixedPointFinder(object):
         # Gradient clipping
         clipped_grads, grad_global_norm = tf.clip_by_global_norm(
             grads, grad_norm_clip_val)
-        clipped_grad_global_norm = tf.global_norm(clipped_grads)
-        clipped_grad_norm_diff = grad_global_norm - clipped_grad_global_norm
+        # clipped_grad_global_norm = tf.global_norm(clipped_grads)
+        # clipped_grad_norm_diff=grad_global_norm-clipped_grad_global_norm
         grads_to_apply = clipped_grads
 
         optimizer = tf.train.AdamOptimizer(
@@ -753,12 +755,12 @@ class FixedPointFinder(object):
                          q_prev_tf: q_prev}
 
             (ev_train,
-            ev_x,
-            ev_F,
-            ev_q_scalar,
-            ev_q,
-            ev_dq,
-            ev_grad_norm) = self.session.run(ops_to_eval, feed_dict)
+             ev_x,
+             ev_F,
+             ev_q_scalar,
+             ev_q,
+             ev_dq,
+             ev_grad_norm) = self.session.run(ops_to_eval, feed_dict)
 
             if self.super_verbose:
                 print_update(iter_count, ev_q, ev_dq, iter_learning_rate)
@@ -813,9 +815,9 @@ class FixedPointFinder(object):
 
         x_tf, F_tf = self._grab_RNN(states_np, inputs_np)
         try:
-           J_tf = pfor.batch_jacobian(F_tf, x_tf)
+            J_tf = pfor.batch_jacobian(F_tf, x_tf)
         except absl.flags._exceptions.UnparsedFlagAccessError:
-           J_tf = pfor.batch_jacobian(F_tf, x_tf, use_pfor=False)
+            J_tf = pfor.batch_jacobian(F_tf, x_tf, use_pfor=False)
 
         J_np = self.session.run(J_tf)
 
