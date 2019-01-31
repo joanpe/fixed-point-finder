@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 
 from RecurrentWhisperer import RecurrentWhisperer
 
+
 class FlipFlop(RecurrentWhisperer):
     ''' Class for training an RNN to implement an N-bit memory, a.k.a. "the
     flip-flop  task" as described in Sussillo & Barak, Neural Computation,
@@ -98,10 +99,9 @@ class FlipFlop(RecurrentWhisperer):
             'rnn_type': 'vanilla',
             'n_hidden': 24,
             'data_hps': {
-                'n_batch': 128,
-                'n_time': 256,
-                'n_bits': 3,
-                'p_flip': 0.2}
+                'n_batch': 1028,
+                'n_time': 32,
+                'n_bits': 6}
             }
 
     @staticmethod
@@ -138,9 +138,9 @@ class FlipFlop(RecurrentWhisperer):
 
         # Data handling
         self.inputs_bxtxd = tf.placeholder(tf.float32,
-            [n_batch, n_time, n_inputs])
+                                           [n_batch, n_time, n_inputs])
         self.output_bxtxd = tf.placeholder(tf.float32,
-            [n_batch, n_time, n_output])
+                                           [n_batch, n_time, n_output])
 
         # RNN
         if hps.rnn_type == 'vanilla':
@@ -151,18 +151,19 @@ class FlipFlop(RecurrentWhisperer):
             self.rnn_cell = tf.nn.rnn_cell.LSTMCell(n_hidden)
         else:
             raise ValueError('Hyperparameter rnn_type must be one of '
-                '[vanilla, gru, lstm] but was %s' % hps.rnn_type)
+                             '[vanilla, gru, lstm] but was %s' % hps.rnn_type)
 
         initial_state = self.rnn_cell.zero_state(n_batch, dtype=tf.float32)
         self.hidden_bxtxd, _ = tf.nn.dynamic_rnn(self.rnn_cell,
-            self.inputs_bxtxd, initial_state=initial_state)
+                                                 self.inputs_bxtxd,
+                                                 initial_state=initial_state)
 
         # Readout from RNN
         np_W_out, np_b_out = self._np_init_weight_matrix(n_hidden, n_output)
         self.W_out = tf.Variable(np_W_out, dtype=tf.float32)
         self.b_out = tf.Variable(np_b_out, dtype=tf.float32)
         self.pred_output_bxtxd = tf.tensordot(self.hidden_bxtxd,
-            self.W_out, axes=1) + self.b_out
+                                              self.W_out, axes=1) + self.b_out
 
         # Loss
         self.loss = tf.reduce_mean(
@@ -198,13 +199,15 @@ class FlipFlop(RecurrentWhisperer):
                 'loss': scalar float evalutaion of the loss function over the
                 data batch.
 
-                'grad_global_norm': scalar float evaluation of the norm of the gradient of the loss function with respect to all trainable variables, taken over the data batch.
+                'grad_global_norm': scalar float evaluation of the norm of
+                the gradient of the loss function with respect to all trainable
+                variables, taken over the data batch.
         '''
 
         ops_to_eval = [self.train_op,
-            self.grad_global_norm,
-            self.loss,
-            self.merged_opt_summary]
+                       self.grad_global_norm,
+                       self.loss,
+                       self.merged_opt_summary]
 
         feed_dict = dict()
         feed_dict[self.inputs_bxtxd] = batch_data['inputs']
@@ -215,12 +218,12 @@ class FlipFlop(RecurrentWhisperer):
         [ev_train_op,
          ev_grad_global_norm,
          ev_loss,
-         ev_merged_opt_summary] = \
-                self.session.run(ops_to_eval, feed_dict=feed_dict)
+         ev_merged_opt_summary] = self.session.run(ops_to_eval,
+                                                   feed_dict=feed_dict)
 
         if self.hps.do_save_tensorboard_events:
 
-            if self._epoch()==0:
+            if self._epoch() == 0:
                 '''Hack to prevent throwing the vertical axis on the
                 Tensorboard figure for grad_norm_clip_val (grad_norm_clip val
                 is initialized to an enormous number to prevent clipping
@@ -304,7 +307,7 @@ class FlipFlop(RecurrentWhisperer):
         (i.e., hidden and cell) at every timestep.'''
         self.full_state_list = []
         for t in range(n_time):
-            input_ = self.inputs_bxtxd[:,t,:]
+            input_ = self.inputs_bxtxd[:, t, :]
             if t == 0:
                 full_state_t_minus_1 = initial_state
             else:
@@ -319,11 +322,11 @@ class FlipFlop(RecurrentWhisperer):
             self.session.run(ops_to_eval, feed_dict=feed_dict)
 
         '''Package the results'''
-        h = np.zeros([n_batch, n_time, n_hidden]) # hidden states: bxtxd
-        c = np.zeros([n_batch, n_time, n_hidden]) # cell states: bxtxd
+        h = np.zeros([n_batch, n_time, n_hidden])  # hidden states: bxtxd
+        c = np.zeros([n_batch, n_time, n_hidden])  # cell states: bxtxd
         for t in range(n_time):
-            h[:,t,:] = ev_full_state_list[t].h
-            c[:,t,:] = ev_full_state_list[t].c
+            h[:, t, :] = ev_full_state_list[t].h
+            c[:, t, :] = ev_full_state_list[t].c
 
         ev_LSTMCellState = tf.nn.rnn_cell.LSTMStateTuple(h=h, c=c)
 
@@ -342,7 +345,7 @@ class FlipFlop(RecurrentWhisperer):
         '''See docstring in RecurrentWhisperer.'''
         return batch_data['inputs'].shape[0]
 
-    def generate_flipflop_trials(self):
+    def generate_dualTask_trials(self):
         '''Generates synthetic data (i.e., ground truth trials) for the
         FlipFlop task. See comments following FlipFlop class definition for a
         description of the input-output relationship in the task.
@@ -402,8 +405,8 @@ class FlipFlop(RecurrentWhisperer):
 
     def _setup_visualizations(self):
         '''See docstring in RecurrentWhisperer.'''
-        FIG_WIDTH = 6 # inches
-        FIX_HEIGHT = 3 # inches
+        FIG_WIDTH = 6  # inches
+        FIX_HEIGHT = 3  # inches
         self.fig = plt.figure(figsize=(FIG_WIDTH, FIX_HEIGHT),
                               tight_layout=True)
 
@@ -433,7 +436,7 @@ class FlipFlop(RecurrentWhisperer):
         n_time = self.hps.data_hps['n_time']
         n_plot = np.min([hps.n_trials_plot, n_batch])
 
-        fig = plt.figure(self.fig.number)
+        plt.figure(self.fig.number)
         plt.clf()
 
         inputs = data['inputs']
@@ -447,7 +450,7 @@ class FlipFlop(RecurrentWhisperer):
         time_idx = range(start_time, stop_time)
 
         for trial_idx in range(n_plot):
-            ax = plt.subplot(n_plot, 1, trial_idx+1)
+            plt.subplot(n_plot, 1, trial_idx+1)
             if n_plot == 1:
                 plt.title('Example trial', fontweight='bold')
             else:
