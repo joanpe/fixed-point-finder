@@ -335,7 +335,7 @@ class DualTask(RecurrentWhisperer):
 
     def _get_data_batches(self, train_data):
         '''See docstring in RecurrentWhisperer.'''
-        return [self.generate_flipflop_trials()]
+        return [self.generate_dualtask_trials()]
 
     def _get_batch_size(self, batch_data):
         '''See docstring in RecurrentWhisperer.'''
@@ -378,7 +378,7 @@ class DualTask(RecurrentWhisperer):
 
     def _update_visualizations(self, train_data=None, valid_data=None):
         '''See docstring in RecurrentWhisperer.'''
-        data = self.generate_flipflop_trials()
+        data = self.generate_dualtask_trials()
         self.plot_trials(data)
 
     def plot_trials(self, data, start_time=0, stop_time=None):
@@ -386,7 +386,7 @@ class DualTask(RecurrentWhisperer):
         and RNN-predicted outputs.
 
         Args:
-            data: dict as returned by generate_flipflop_trials.
+            data: dict as returned by generate_dualtask_trials.
 
             start_time (optional): int specifying the first timestep to plot.
             Default: 0.

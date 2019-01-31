@@ -47,7 +47,7 @@ dt.train()
 
 # Get example state trajectories from the network
 # Visualize inputs, outputs, and RNN predictions from example trials
-example_trials = dt.generate_flipflop_trials()
+example_trials = dt.generate_dualtask_trials()
 dt.plot_trials(example_trials)
 
 # *****************************************************************************
