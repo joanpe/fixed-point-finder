@@ -39,7 +39,7 @@ hps = {
         'n_time': 32,
         'n_bits': 3,
         'noise': 0.1,
-        'gng_time' = 10},
+        'gng_time': 10},
     'alr_hps': alr_hps
     }
 
