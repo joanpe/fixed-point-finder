@@ -41,6 +41,8 @@ def get_inputs_outputs(n_batch, n_time, n_bits, gng_time):
 
 
 def get_stims(stim, n_batch):
+    print(stim.shape)
+    print(n_batch)
     choice = np.random.choice(stim.shape[0], size=(n_batch, ))
     stim_seq = stim[choice].astype(int)
     return stim_seq, choice
