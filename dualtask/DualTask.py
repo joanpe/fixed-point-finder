@@ -12,36 +12,33 @@ from __future__ import print_function
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
-
+import data
 from RecurrentWhisperer import RecurrentWhisperer
 
 
-class FlipFlop(RecurrentWhisperer):
-    ''' Class for training an RNN to implement an N-bit memory, a.k.a. "the
-    flip-flop  task" as described in Sussillo & Barak, Neural Computation,
-    2013.
+class DualTask(RecurrentWhisperer):
+    ''' Class for training an RNN to perform the dual task described in
+        Zhang et al. 2018 bioRxiv
 
     Task:
-        Briefly, a set of inputs carry transient pulses (-1 or +1) to set the
-        state of a set of binary outputs (also -1 or +1). Each input drives
-        exactly one output. If the sign of an input pulse opposes the sign
-        currently held at the corresponding output, the sign of the output
-        flips. If an input pulse's sign matches that currently held at the
-        corresponding output, the output does not change.
+        Briefly, the task is composed of two nested tasks: a delay pair
+        association task that requires the RNN to compare two stimuli
+        presented with a delay, and a simple Go-NoGo task that works as
+        a distractor.
 
-        This class generates synthetic data for the flip-flop task via
-        generate_flipflop_trials(...).
+        This class generates synthetic data for the task via
+        generate_dualtask_trials(...).
 
     Usage:
         This class trains an RNN to generate the correct outputs given the
-        inputs of the flip-flop task. All that is needed to get started is to
-        construct a flipflop object and to call .train on that object:
+        inputs of the dual-task. All that is needed to get started is to
+        construct a dualtask object and to call .train on that object:
 
         # dict of hyperparameter key/value pairs
         # (see 'Hyperparameters' section below)
         hps = {...}
 
-        ff = FlipFlop(**hps)
+        ff = DualTask(**hps)
         ff.train()
 
     Hyperparameters:
@@ -55,27 +52,24 @@ class FlipFlop(RecurrentWhisperer):
         data. Contains the following keys:
 
             'n_batch': int specifying the number of synthetic trials to use
-            per training batch (i.e., for one gradient step). Default: 128.
+            per training batch (i.e., for one gradient step). Default: 1024.
 
             'n_time': int specifying the duration of each synthetic trial
-            (measured in timesteps). Default: 256.
+            (measured in timesteps). Default: 32.
 
             'n_bits': int specifying the number of input channels into the
             FlipFlop device (which will also be the number of output channels).
-            Default: 3.
+            Default: 6 (corresponding to the six stimuli).
 
-            'p_flip': float between 0.0 and 1.0 specifying the probability
-            that a particular input channel at a particular timestep will
-            contain a pulse (-1 or +1) on top of its steady-state value (0).
-            Pulse signs are chosen by fair coin flips, and pulses are produced
-            with the same statistics across all input channels and across all
-            timesteps (i.e., there are no history effects, there are no
-            interactions across input channels). Default: 0.2.
+            'gng_time': time at which the go-noGo stimulus will be presented.
+            Should be smaller than n_time
+
+            'noise': std of gaussian noise added independently to each channel
 
         log_dir: string specifying the top-level directory for saving various
         training runs (where each training run is specified by a different set
         of hyperparameter settings). When tuning hyperparameters, log_dir is
-        meant to be constant across models. Default: '/tmp/flipflop_logs/'.
+        meant to be constant across models. Default: '/tmp/dualtask_logs/'.
 
         n_trials_plot: int specifying the number of synthetic trials to plot
         per visualization update. Default: 4.
@@ -83,11 +77,11 @@ class FlipFlop(RecurrentWhisperer):
 
     @staticmethod
     def _default_hash_hyperparameters():
-        '''Defines default hyperparameters, specific to FlipFlop, for the set
+        '''Defines default hyperparameters, specific to DualTask, for the set
         of hyperparameters that are hashed to define a directory structure for
         easily managing multiple runs of the RNN training (i.e., using
         different hyperparameter settings). Additional default hyperparameters
-        are defined in RecurrentWhisperer (from which FlipFlop inherits).
+        are defined in RecurrentWhisperer (from which DualTask inherits).
 
         Args:
             None.
@@ -101,14 +95,16 @@ class FlipFlop(RecurrentWhisperer):
             'data_hps': {
                 'n_batch': 1028,
                 'n_time': 32,
-                'n_bits': 6}
+                'n_bits': 6,
+                'gng_time': 10,
+                'noise': 0.1}
             }
 
     @staticmethod
     def _default_non_hash_hyperparameters():
-        '''Defines default hyperparameters, specific to FlipFlop, for the set
+        '''Defines default hyperparameters, specific to DualTask, for the set
         of hyperparameters that are NOT hashed. Additional default
-        hyperparameters are defined in RecurrentWhisperer (from which FlipFlop
+        hyperparameters are defined in RecurrentWhisperer (from which DualTask
         inherits).
 
         Args:
@@ -118,7 +114,7 @@ class FlipFlop(RecurrentWhisperer):
             dict of hyperparameters.
         '''
         return {
-            'log_dir': '/tmp/flipflop_logs/',
+            'log_dir': '/tmp/dualtask_logs/',
             'n_trials_plot': 1,
             }
 
@@ -345,9 +341,9 @@ class FlipFlop(RecurrentWhisperer):
         '''See docstring in RecurrentWhisperer.'''
         return batch_data['inputs'].shape[0]
 
-    def generate_dualTask_trials(self):
+    def generate_dualtask_trials(self):
         '''Generates synthetic data (i.e., ground truth trials) for the
-        FlipFlop task. See comments following FlipFlop class definition for a
+        dual task. See comments following DualTask class definition for a
         description of the input-output relationship in the task.
 
         Args:
@@ -360,48 +356,18 @@ class FlipFlop(RecurrentWhisperer):
                 input pulses.
 
                 'outputs': [n_batch x n_time x n_bits] numpy array specifying
-                the correct behavior of the FlipFlop memory device.
+                the correct behavior of the Dual task device.
         '''
 
         data_hps = self.hps.data_hps
         n_batch = data_hps['n_batch']
         n_time = data_hps['n_time']
         n_bits = data_hps['n_bits']
-        p_flip = data_hps['p_flip']
+        gng_time = data_hps['gng_time']
 
-        # Randomly generate unsigned input pulses
-        unsigned_inputs = self.rng.binomial(
-            1, p_flip, [n_batch, n_time, n_bits])
-
-        # Ensure every trial is initialized with a pulse at time 0
-        unsigned_inputs[:, 0, :] = 1
-
-        # Generate random signs {-1, +1}
-        random_signs = 2*self.rng.binomial(
-            1, 0.5, [n_batch, n_time, n_bits]) - 1
-
-        # Apply random signs to input pulses
-        inputs = np.multiply(unsigned_inputs, random_signs)
-
-        # Allocate output
-        output = np.zeros([n_batch, n_time, n_bits])
-
-        # Update inputs (zero-out random start holds) & compute output
-        for trial_idx in range(n_batch):
-            for bit_idx in range(n_bits):
-                input_ = np.squeeze(inputs[trial_idx, :, bit_idx])
-                t_flip = np.where(input_ != 0)
-                for flip_idx in range(np.size(t_flip)):
-                    # Get the time of the next flip
-                    t_flip_i = t_flip[0][flip_idx]
-
-                    '''Set the output to the sign of the flip for the
-                    remainder of the trial. Future flips will overwrite future
-                    output'''
-                    output[trial_idx, t_flip_i:, bit_idx] = \
-                        inputs[trial_idx, t_flip_i, bit_idx]
-
-        return {'inputs': inputs, 'output': output}
+        dataset = data.get_inputs_outputs(n_batch, n_time,
+                                          n_bits, gng_time)
+        return dataset
 
     def _setup_visualizations(self):
         '''See docstring in RecurrentWhisperer.'''
