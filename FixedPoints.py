@@ -603,8 +603,8 @@ class FixedPoints(object):
                     if n_states >= 3:
                         # [3 x 3] numpy array
                         zstar_mode = pca.transform(xstar_mode)
-                    else:
-                        zstar_mode = x_star_mode
+                    #                    else:
+                    #                        zstar_mode = x_star_mode
 
                     plot_123d(ax, zstar_mode, color=color)
 
@@ -618,7 +618,6 @@ class FixedPoints(object):
                 zstar = pca.transform(xstar)
             else:
                 zstar = xstar
-
             plot_123d(
                 ax, zstar, color=color, marker='.', markersize=12)
 
@@ -692,10 +691,18 @@ class FixedPoints(object):
                 else:
                     z_idx = x_idx[plot_time_idx, :]
                 if stim_config is not None:
-                    plot_123d(ax, z_idx, color=stim_config[batch_idx, :],
+                    some_noise = np.random.normal(scale=0.01,
+                                                  size=(1, z_idx.shape[1]))
+                    plot_123d(ax, z_idx+some_noise,
+                              color=stim_config[batch_idx, :],
                               linewidth=0.2)
                 else:
                     plot_123d(ax, z_idx, color='b', linewidth=0.2)
+
+                plot_123d(ax, z_idx[0, :].reshape((1, 3)), color='g',
+                          marker='+', markersize=8)
+                plot_123d(ax, z_idx[-1, :].reshape((1, 3)), color='r',
+                          marker='+', markersize=8)
 
         for init_idx in range(n_inits):
             plot_fixed_point(
