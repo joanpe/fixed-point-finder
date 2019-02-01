@@ -133,7 +133,7 @@ class FixedPointFinder(object):
         self.adam_optimizer_hps = adam_hps
 
     def sample_states(self, state_traj, n_inits,
-                      noise_scale=0.0, rng=npr.RandomState(0)):
+                      noise_scale=0.0, rng=npr.RandomState(0), stim_config=None):
         '''Draws random samples from trajectories of the RNN state. Samples
         can optionally be corrupted by independent and identically distributed
         (IID) Gaussian noise. These samples are intended to be used as initial
@@ -168,11 +168,16 @@ class FixedPointFinder(object):
 
         # Draw random samples from state trajectories
         states = np.zeros([n_inits, n_states])
+        if stim_config is not None:
+            stim_config_st = np.zeros([n_inits, stim_config.shape[1]])
+        else:
+            stim_config_st = []
         for init_idx in range(n_inits):
             trial_idx = rng.randint(n_batch)
-            time_idx = rng.randint(n_time)
+            time_idx = 0  # rng.randint(n_time)
             states[init_idx, :] = state_traj_bxtxd[trial_idx, time_idx, :]
-
+            if stim_config is not None:
+                stim_config_st[init_idx, :] = stim_config[trial_idx, :]
         # Add IID Gaussian noise to the sampled states
         if noise_scale > 0.0:
             states += noise_scale * rng.randn(n_inits, n_states)
@@ -185,7 +190,7 @@ class FixedPointFinder(object):
         if self.is_lstm:
             return tf_utils.convert_to_LSTMStateTuple(states)
         else:
-            return states
+            return states, stim_config_st
 
     def find_fixed_points(self, initial_states, inputs):
         '''Finds RNN fixed points and the Jacobians at the fixed points.
