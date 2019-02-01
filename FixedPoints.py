@@ -463,7 +463,8 @@ class FixedPoints(object):
              plot_batch_idx=None,
              plot_start_time=0,
              plot_stop_time=None,
-             mode_scale=0.25):
+             mode_scale=0.25,
+             stim_config=None):
 
         '''Plots a visualization and analysis of the unique fixed points.
 
@@ -690,7 +691,11 @@ class FixedPoints(object):
                     z_idx = pca.transform(x_idx[plot_time_idx, :])
                 else:
                     z_idx = x_idx[plot_time_idx, :]
-                plot_123d(ax, z_idx, color='b', linewidth=0.2)
+                if stim_config is not None:
+                    plot_123d(ax, z_idx, color=stim_config[batch_idx, :],
+                              linewidth=0.2)
+                else:
+                    plot_123d(ax, z_idx, color='b', linewidth=0.2)
 
         for init_idx in range(n_inits):
             plot_fixed_point(
@@ -701,6 +706,6 @@ class FixedPoints(object):
                 scale=mode_scale)
 
         plt.ion()
-        plt.show()
-        plt.pause(1e-10)
+        plt.show(block=True)
+        # plt.pause()
         return fig
