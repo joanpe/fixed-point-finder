@@ -37,7 +37,13 @@ def get_inputs_outputs(n_batch, n_time, n_bits, gng_time):
     outputs = np.zeros([n_batch, n_time, n_bits])
     outputs[gt_dpa == 1, n_time-1, 0] = 1
     outputs[gt_gng == 1, gng_time, 0] = 1
-    return {'inputs': inputs, 'output': outputs}
+
+    # stim configuration
+    stim_conf = np.concatenate((choice1.reshape(n_batch, 1),
+                                choice2.reshape(n_batch, 1),
+                                gt_gng.reshape(n_batch, 1)), axis=1)
+
+    return {'inputs': inputs, 'output': outputs, 'stim_conf': stim_conf}
 
 
 def get_stims(stim, n_batch):
@@ -48,7 +54,7 @@ def get_stims(stim, n_batch):
 
 if __name__ == '__main__':
     plt.close('all')
-    n_batch = 4
+    n_batch = 10
     n_time = 8
     n_bits = 6
     gng_time = 3

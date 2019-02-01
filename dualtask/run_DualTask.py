@@ -29,13 +29,13 @@ alr_hps = {'initial_rate': 0.1}
 # Hyperparameters for FlipFlop
 # See FlipFlop.py for detailed descriptions.
 hps = {
-    'rnn_type': 'lstm',
+    'rnn_type': 'vanilla',
     'n_hidden': 16,
     'min_loss': 1e-4,
     'min_learning_rate': 1e-5,
     'log_dir': './logs/',
     'data_hps': {
-        'n_batch': 1024,
+        'n_batch': 2048,
         'n_time': 32,
         'n_bits': 6,
         'noise': 0.1,
@@ -50,7 +50,7 @@ dt.train()
 # Visualize inputs, outputs, and RNN predictions from example trials
 example_trials = dt.generate_dualtask_trials()
 f = dt.plot_trials(example_trials)
-f.canvas.draw()
+# f.canvas.draw()
 # *****************************************************************************
 # STEP 2: Find, analyze, and visualize the fixed points of the trained RNN ****
 # *****************************************************************************
@@ -63,7 +63,7 @@ time near the unstable fixed points. In order to identify ALL fixed points,
 noise must be added to the initial states before handing them to the fixed
 point finder.'''
 NOISE_SCALE = 0.5  # Standard deviation of noise added to initial states
-N_INITS = 1024  # The number of initial states to provide
+N_INITS = 4096  # The number of initial states to provide
 
 n_bits = dt.hps.data_hps['n_bits']
 is_lstm = dt.hps.rnn_type == 'lstm'
@@ -94,9 +94,10 @@ unique_fps, all_fps = fpf.find_fixed_points(initial_states, inputs)
 
 # Visualize identified fixed points with overlaid RNN state trajectories
 # All visualized in the 3D PCA space fit the the example RNN states.
-f = unique_fps.plot(example_predictions['state'],
-                    plot_batch_idx=range(30),
-                    plot_start_time=10)
-f.canvas.draw()
+f = unique_fps.plot(example_predictions['state'])
+# f = unique_fps.plot(example_predictions['state'],
+#                     plot_batch_idx=range(30),
+#                     plot_start_time=10)
+
 print('Entering debug mode to allow interaction with objects and figures.')
 # pdb.set_trace()

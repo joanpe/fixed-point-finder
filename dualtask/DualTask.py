@@ -115,7 +115,7 @@ class DualTask(RecurrentWhisperer):
         '''
         return {
             'log_dir': '/tmp/dualtask_logs/',
-            'n_trials_plot': 1,
+            'n_trials_plot': 6,
             }
 
     def _setup_model(self):
@@ -372,7 +372,7 @@ class DualTask(RecurrentWhisperer):
     def _setup_visualizations(self):
         '''See docstring in RecurrentWhisperer.'''
         FIG_WIDTH = 6  # inches
-        FIX_HEIGHT = 3  # inches
+        FIX_HEIGHT = 9  # inches
         self.fig = plt.figure(figsize=(FIG_WIDTH, FIX_HEIGHT),
                               tight_layout=True)
 
@@ -447,9 +447,7 @@ class DualTask(RecurrentWhisperer):
         tt = range(n_time)
 
         y_ticks = [VERTICAL_SPACING*bit_idx for bit_idx in range(n_bits)]
-        y_tick_labels = \
-            ['Bit %d' % (n_bits-bit_idx) for bit_idx in range(n_bits)]
-
+        y_tick_labels = ['S %d' % (bit_idx+1) for bit_idx in range(n_bits)]
         plt.yticks(y_ticks, y_tick_labels, fontweight='bold')
         for bit_idx in range(n_bits):
 
