@@ -9,10 +9,10 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import pdb
+# import pdb
 import sys
 import numpy as np
-
+import matplotlib.pyplot as plt
 PATH_TO_FIXED_POINT_FINDER = '../'
 sys.path.insert(0, PATH_TO_FIXED_POINT_FINDER)
 from DualTask import DualTask
@@ -30,7 +30,7 @@ alr_hps = {'initial_rate': 0.1}
 # See FlipFlop.py for detailed descriptions.
 hps = {
     'rnn_type': 'vanilla',
-    'n_hidden': 16,
+    'n_hidden': 8,
     'min_loss': 1e-4,
     'min_learning_rate': 1e-5,
     'log_dir': './logs/',
@@ -39,7 +39,7 @@ hps = {
         'n_time': 32,
         'n_bits': 6,
         'noise': 0.1,
-        'gng_time': 10},
+        'gng_time': 0},
     'alr_hps': alr_hps
     }
 
@@ -89,17 +89,32 @@ initial_states = fpf.sample_states(example_predictions['state'],
                                    rng=dt.rng,
                                    noise_scale=NOISE_SCALE)
 
+# plot population activity
+f = plt.figure()
+num_plots = 5
+for ind_pl in range(num_plots):
+    plt.subplot(num_plots, 1, ind_pl+1)
+    plt.imshow(np.squeeze(example_predictions['state'][ind_pl, :, :].T))
+
 # Run the fixed point finder
 unique_fps, _ = fpf.find_fixed_points(initial_states, inputs)
 
 # Visualize identified fixed points with overlaid RNN state trajectories
 # All visualized in the 3D PCA space fit the the example RNN states.
+# example_trials['stim_conf'] specifies the color of the trace
+# so I just lower the intensity of the colors that are too bright
+suma = np.sum(example_trials['stim_conf'], axis=1).\
+    reshape((example_trials['stim_conf'].shape[0], 1)) + 0.000001
+example_trials['stim_conf'] =\
+     example_trials['stim_conf']/suma
+print(example_trials['stim_conf'])
 f = unique_fps.plot(example_predictions['state'],
                     stim_config=example_trials['stim_conf'],
-                    plot_batch_idx=range(N_INITS))
+                    plot_batch_idx=range(32),
+                    gng_time=dt.hps.data_hps['gng_time'])
 # f = unique_fps.plot(example_predictions['state'],
 #                     plot_batch_idx=range(30),
 #                     plot_start_time=10)
 
-print('Entering debug mode to allow interaction with objects and figures.')
+# print('Entering debug mode to allow interaction with objects and figures.')
 # pdb.set_trace()
