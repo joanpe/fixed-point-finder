@@ -30,16 +30,16 @@ alr_hps = {'initial_rate': 0.1}
 # See FlipFlop.py for detailed descriptions.
 hps = {
     'rnn_type': 'vanilla',
-    'n_hidden': 8,
+    'n_hidden': 16,
     'min_loss': 1e-4,
     'min_learning_rate': 1e-5,
     'log_dir': './logs/',
     'data_hps': {
         'n_batch': 2048,
-        'n_time': 32,
+        'n_time': 10,
         'n_bits': 6,
         'noise': 0.1,
-        'gng_time': 0},
+        'gng_time': 5},
     'alr_hps': alr_hps
     }
 
@@ -54,8 +54,6 @@ f = dt.plot_trials(example_trials)
 # *****************************************************************************
 # STEP 2: Find, analyze, and visualize the fixed points of the trained RNN ****
 # *****************************************************************************
-
-
 '''Initial states are sampled from states observed during realistic behavior
 of the network. Because a well-trained network transitions instantaneously
 from one stable state to another, observed networks states spend little if any

@@ -162,12 +162,13 @@ class DualTask(RecurrentWhisperer):
                                               self.W_out, axes=1) + self.b_out
 
         # Loss
-        self.loss =\
-            tf.nn.sigmoid_cross_entropy_with_logits(labels=self.output_bxtxd,
-                                                    logits=self.pred_output_bxtxd)
+        # self.loss =\
+        # tf.nn.sigmoid_cross_entropy_with_logits(labels=self.output_bxtxd,
+        # logits=self.pred_output_bxtxd)
 
-        # self.loss = tf.reduce_mean(
-        # tf.squared_difference(self.output_bxtxd, self.pred_output_bxtxd))
+        self.loss = tf.reduce_mean(
+                tf.squared_difference(self.output_bxtxd,
+                                      self.pred_output_bxtxd))
 
     def _setup_saver(self):
         '''See docstring in RecurrentWhisperer.'''
