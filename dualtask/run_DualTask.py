@@ -30,16 +30,18 @@ alr_hps = {'initial_rate': 0.1}
 # See FlipFlop.py for detailed descriptions.
 hps = {
     'rnn_type': 'vanilla',
-    'n_hidden': 16,
-    'min_loss': 1e-4,
-    'min_learning_rate': 1e-5,
+    'n_hidden': 256,
+    'min_loss': 1e-6,  # 1e-4
+    'min_learning_rate': 1e-10,  # 1e-5
+    'max_n_epochs': 10000,
+    'do_restart_run': False,
     'log_dir': './logs/',
     'data_hps': {
         'n_batch': 2048,
-        'n_time': 10,
+        'n_time': 20,
         'n_bits': 6,
-        'noise': 0.1,
-        'gng_time': 5},
+        'noise': 0.05,
+        'gng_time': 0},
     'alr_hps': alr_hps
     }
 
@@ -86,13 +88,13 @@ initial_states = fpf.sample_states(example_predictions['state'],
                                    n_inits=N_INITS,
                                    rng=dt.rng,
                                    noise_scale=NOISE_SCALE)
-
 # plot population activity
 f = plt.figure()
 num_plots = 5
 for ind_pl in range(num_plots):
     plt.subplot(num_plots, 1, ind_pl+1)
-    plt.imshow(np.squeeze(example_predictions['state'][ind_pl, :, :].T))
+    plt.imshow(np.squeeze(example_predictions['state'][ind_pl, :, :].T),
+               aspect='auto')
 
 # Run the fixed point finder
 unique_fps, _ = fpf.find_fixed_points(initial_states, inputs)
@@ -101,18 +103,41 @@ unique_fps, _ = fpf.find_fixed_points(initial_states, inputs)
 # All visualized in the 3D PCA space fit the the example RNN states.
 # example_trials['stim_conf'] specifies the color of the trace
 # so I just lower the intensity of the colors that are too bright
-suma = np.sum(example_trials['stim_conf'], axis=1).\
-    reshape((example_trials['stim_conf'].shape[0], 1)) + 0.000001
-example_trials['stim_conf'] =\
-     example_trials['stim_conf']/suma
-print(example_trials['stim_conf'])
+# suma = np.sum(example_trials['stim_conf'], axis=1).\
+#    reshape((example_trials['stim_conf'].shape[0], 1)) + 0.000001
+# example_trials['stim_conf'] =\
+#     example_trials['stim_conf']/suma
+# colors based on S1/S2
+colors = np.zeros_like(example_trials['stim_conf'])
+colors[:, 0] = example_trials['stim_conf'][:, 0]
 f = unique_fps.plot(example_predictions['state'],
-                    stim_config=example_trials['stim_conf'],
-                    plot_batch_idx=range(32),
-                    gng_time=dt.hps.data_hps['gng_time'])
+                    stim_config=colors,
+                    plot_batch_idx=range(128),
+                    gng_time=dt.hps.data_hps['gng_time'], title='S1/S2')
+# colors based on S3/s4
+colors = np.zeros_like(example_trials['stim_conf'])
+colors[:, 0] = example_trials['stim_conf'][:, 1]
+f = unique_fps.plot(example_predictions['state'],
+                    stim_config=colors,
+                    plot_batch_idx=range(128),
+                    gng_time=dt.hps.data_hps['gng_time'], title='S3/S4')
+# colors based on S5/s6
+# colors = np.zeros_like(example_trials['stim_conf'])
+# colors[:, 0] = example_trials['stim_conf'][:, 2]
 # f = unique_fps.plot(example_predictions['state'],
-#                     plot_batch_idx=range(30),
-#                     plot_start_time=10)
+#                     stim_config=colors,
+#                     plot_batch_idx=range(128),
+#                     gng_time=dt.hps.data_hps['gng_time'])
+
+# colors based on final GO/NOGO
+colors = np.zeros_like(example_trials['stim_conf'])
+colors[:, 0] = example_trials['output'][:, -1, 0]
+f = unique_fps.plot(example_predictions['state'],
+                    stim_config=colors,
+                    plot_batch_idx=range(128),
+                    gng_time=dt.hps.data_hps['gng_time'], block=True,
+                    title='GO/NO-GO')
+
 
 # print('Entering debug mode to allow interaction with objects and figures.')
 # pdb.set_trace()

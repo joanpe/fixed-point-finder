@@ -464,7 +464,10 @@ class FixedPoints(object):
              plot_start_time=0,
              plot_stop_time=None,
              mode_scale=0.25,
-             stim_config=None):
+             stim_config=None,
+             gng_time=0,
+             block=False,
+             title=''):
 
         '''Plots a visualization and analysis of the unique fixed points.
 
@@ -691,7 +694,7 @@ class FixedPoints(object):
                 else:
                     z_idx = x_idx[plot_time_idx, :]
                 if stim_config is not None:
-                    some_noise = np.random.normal(scale=0.01,
+                    some_noise = np.random.normal(scale=0.005,
                                                   size=(1, z_idx.shape[1]))
                     plot_123d(ax, z_idx+some_noise,
                               color=stim_config[batch_idx, :],
@@ -701,8 +704,13 @@ class FixedPoints(object):
 
                 plot_123d(ax, z_idx[0, :].reshape((1, 3)), color='g',
                           marker='+', markersize=8)
-                plot_123d(ax, z_idx[-1, :].reshape((1, 3)), color='r',
+                plot_123d(ax, z_idx[-5, :].reshape((1, 3)), color='c',
                           marker='+', markersize=8)
+                plot_123d(ax, z_idx[-1, :].reshape((1, 3)), color='m',
+                          marker='+', markersize=8)
+                if gng_time != 0:
+                    plot_123d(ax, z_idx[gng_time, :].reshape((1, 3)),
+                              color='m', marker='+', markersize=8)
 
         for init_idx in range(n_inits):
             plot_fixed_point(
@@ -713,6 +721,7 @@ class FixedPoints(object):
                 scale=mode_scale)
 
         plt.ion()
-        plt.show(block=True)
+        plt.title(title)
+        plt.show(block=block)
         # plt.pause()
         return fig

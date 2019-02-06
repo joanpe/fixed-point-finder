@@ -29,7 +29,7 @@ def get_inputs_outputs(n_batch, n_time, n_bits, gng_time):
 
     for ind_btch in range(n_batch):
         inputs[ind_btch, 1, stim1_seq[ind_btch]] = 1
-        inputs[ind_btch, n_time-2, stim2_seq[ind_btch]] = 1
+        inputs[ind_btch, n_time-5, stim2_seq[ind_btch]] = 1
         if gng_time != 0:
             inputs[ind_btch, gng_time-1, gng_stim_seq[ind_btch]] = 1
 
