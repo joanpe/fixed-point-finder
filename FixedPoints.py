@@ -707,10 +707,10 @@ class FixedPoints(object):
                 plot_123d(ax, z_idx[-5, :].reshape((1, 3)), color='c',
                           marker='+', markersize=8)
                 plot_123d(ax, z_idx[-1, :].reshape((1, 3)), color='m',
-                          marker='+', markersize=8)
+                          marker='x', markersize=8)
                 if gng_time != 0:
                     plot_123d(ax, z_idx[gng_time, :].reshape((1, 3)),
-                              color='m', marker='+', markersize=8)
+                              color='b', marker='+', markersize=8)
 
         for init_idx in range(n_inits):
             plot_fixed_point(

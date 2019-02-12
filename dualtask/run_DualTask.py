@@ -41,7 +41,7 @@ hps = {
         'n_time': 20,
         'n_bits': 6,
         'noise': 0.05,
-        'gng_time': 0},
+        'gng_time': 10},
     'alr_hps': alr_hps
     }
 
@@ -93,8 +93,26 @@ f = plt.figure()
 num_plots = 5
 for ind_pl in range(num_plots):
     plt.subplot(num_plots, 1, ind_pl+1)
-    plt.imshow(np.squeeze(example_predictions['state'][ind_pl, :, :].T),
-               aspect='auto')
+    aux = np.squeeze(example_predictions['state'][ind_pl, :, :].T)
+    maximo = np.max(np.abs(aux), axis=1).reshape((dt.hps.n_hidden, 1))
+    print(aux)
+    aux = aux/maximo
+    print(maximo)
+    plt.imshow(aux, aspect='auto')
+    if ind_pl == num_plots-1:
+        plt.xlabel('time (a.u.)')
+        plt.ylabel('neurons')
+
+f = plt.figure()
+num_plots = 5
+for ind_pl in range(num_plots):
+    plt.subplot(num_plots, 1, ind_pl+1)
+    aux = np.squeeze(example_predictions['state'][ind_pl, :, :].T)
+    maximo = np.max(np.abs(aux), axis=1).reshape((dt.hps.n_hidden, 1))
+    plt.plot(aux.T)
+    if ind_pl == num_plots-1:
+        plt.xlabel('time (a.u.)')
+        plt.ylabel('neurons')
 
 # Run the fixed point finder
 unique_fps, _ = fpf.find_fixed_points(initial_states, inputs)
@@ -122,12 +140,12 @@ f = unique_fps.plot(example_predictions['state'],
                     plot_batch_idx=range(128),
                     gng_time=dt.hps.data_hps['gng_time'], title='S3/S4')
 # colors based on S5/s6
-# colors = np.zeros_like(example_trials['stim_conf'])
-# colors[:, 0] = example_trials['stim_conf'][:, 2]
-# f = unique_fps.plot(example_predictions['state'],
-#                     stim_config=colors,
-#                     plot_batch_idx=range(128),
-#                     gng_time=dt.hps.data_hps['gng_time'])
+colors = np.zeros_like(example_trials['stim_conf'])
+colors[:, 0] = example_trials['stim_conf'][:, 2]
+f = unique_fps.plot(example_predictions['state'],
+                    stim_config=colors,
+                    plot_batch_idx=range(128),
+                    gng_time=dt.hps.data_hps['gng_time'], title='S5/S6')
 
 # colors based on final GO/NOGO
 colors = np.zeros_like(example_trials['stim_conf'])
