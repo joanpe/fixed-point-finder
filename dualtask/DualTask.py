@@ -65,6 +65,8 @@ class DualTask(RecurrentWhisperer):
             Should be smaller than n_time
 
             'noise': std of gaussian noise added independently to each channel
+            
+            'lamb': parametrization of the stimulus S5, S6
 
         log_dir: string specifying the top-level directory for saving various
         training runs (where each training run is specified by a different set
@@ -369,9 +371,10 @@ class DualTask(RecurrentWhisperer):
         n_time = data_hps['n_time']
         n_bits = data_hps['n_bits']
         gng_time = data_hps['gng_time']
+        lamb = data_hps['lamb']
 
         dataset = data.get_inputs_outputs(n_batch, n_time,
-                                          n_bits, gng_time)
+                                          n_bits, gng_time, lamb)
         return dataset
 
     def _setup_visualizations(self):

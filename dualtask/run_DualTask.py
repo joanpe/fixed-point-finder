@@ -41,7 +41,8 @@ hps = {
         'n_time': 20,
         'n_bits': 6,
         'noise': 0.05,
-        'gng_time': 10},
+        'gng_time': 10,
+        'lamb': 0.25},
     'alr_hps': alr_hps
     }
 
@@ -95,9 +96,9 @@ for ind_pl in range(num_plots):
     plt.subplot(num_plots, 1, ind_pl+1)
     aux = np.squeeze(example_predictions['state'][ind_pl, :, :].T)
     maximo = np.max(np.abs(aux), axis=1).reshape((dt.hps.n_hidden, 1))
-    print(aux)
+    #print(aux)
     aux = aux/maximo
-    print(maximo)
+    #print(maximo)
     plt.imshow(aux, aspect='auto')
     if ind_pl == num_plots-1:
         plt.xlabel('time (a.u.)')
@@ -126,26 +127,26 @@ unique_fps, _ = fpf.find_fixed_points(initial_states, inputs)
 # example_trials['stim_conf'] =\
 #     example_trials['stim_conf']/suma
 # colors based on S1/S2
-colors = np.zeros_like(example_trials['stim_conf'])
-colors[:, 0] = example_trials['stim_conf'][:, 0]
-f = unique_fps.plot(example_predictions['state'],
-                    stim_config=colors,
-                    plot_batch_idx=range(128),
-                    gng_time=dt.hps.data_hps['gng_time'], title='S1/S2')
-# colors based on S3/s4
-colors = np.zeros_like(example_trials['stim_conf'])
-colors[:, 0] = example_trials['stim_conf'][:, 1]
-f = unique_fps.plot(example_predictions['state'],
-                    stim_config=colors,
-                    plot_batch_idx=range(128),
-                    gng_time=dt.hps.data_hps['gng_time'], title='S3/S4')
-# colors based on S5/s6
-colors = np.zeros_like(example_trials['stim_conf'])
-colors[:, 0] = example_trials['stim_conf'][:, 2]
-f = unique_fps.plot(example_predictions['state'],
-                    stim_config=colors,
-                    plot_batch_idx=range(128),
-                    gng_time=dt.hps.data_hps['gng_time'], title='S5/S6')
+#colors = np.zeros_like(example_trials['stim_conf'])
+#colors[:, 0] = example_trials['stim_conf'][:, 0]
+#f = unique_fps.plot(example_predictions['state'],
+#                    stim_config=colors,
+#                    plot_batch_idx=range(128),
+#                    gng_time=dt.hps.data_hps['gng_time'], title='S1/S2')
+## colors based on S3/s4
+#colors = np.zeros_like(example_trials['stim_conf'])
+#colors[:, 0] = example_trials['stim_conf'][:, 1]
+#f = unique_fps.plot(example_predictions['state'],
+#                    stim_config=colors,
+#                    plot_batch_idx=range(128),
+#                    gng_time=dt.hps.data_hps['gng_time'], title='S3/S4')
+## colors based on S5/s6
+#colors = np.zeros_like(example_trials['stim_conf'])
+#colors[:, 0] = example_trials['stim_conf'][:, 2]
+#f = unique_fps.plot(example_predictions['state'],
+#                    stim_config=colors,
+#                    plot_batch_idx=range(128),
+#                    gng_time=dt.hps.data_hps['gng_time'], title='S5/S6')
 
 # colors based on final GO/NOGO
 colors = np.zeros_like(example_trials['stim_conf'])

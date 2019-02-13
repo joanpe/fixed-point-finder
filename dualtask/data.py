@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pylab as plt
 
 
-def get_inputs_outputs(n_batch, n_time, n_bits, gng_time, lamb=0, mat_conv=[2, 3]):
+def get_inputs_outputs(n_batch, n_time, n_bits, gng_time, lamb=0, mat_conv=[0,1]):
     # inputs mat
     inputs = np.zeros([n_batch, n_time, n_bits])
     # build dpa structure
@@ -36,7 +36,7 @@ def get_inputs_outputs(n_batch, n_time, n_bits, gng_time, lamb=0, mat_conv=[2, 3
             inputs[ind_btch, gng_time-1, gng_stim_seq[ind_btch]] = 1-lamb
             # Example: S5 --> index 4, S1 --> index 0, mat_conv[S5] = 0
             inputs[ind_btch, gng_time-1,
-                   mat_conv[gng_stim_seq[ind_btch]]] = lamb
+                   mat_conv[gt_gng[ind_btch]]] = lamb
 
     # output (note that n_bits could actually be 1 here because we just
     # need one decision. I kept it as it is for the flipFlop task
