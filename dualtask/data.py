@@ -29,16 +29,21 @@ def get_inputs_outputs(n_batch, n_time, n_bits, gng_time):
 
     for ind_btch in range(n_batch):
         inputs[ind_btch, 1, stim1_seq[ind_btch]] = 1
+        # dpa2 presented at time n_time - 5
         inputs[ind_btch, n_time-5, stim2_seq[ind_btch]] = 1
         if gng_time != 0:
-            inputs[ind_btch, gng_time-1, gng_stim_seq[ind_btch]] = 1
-
+            inputs[ind_btch, gng_time-1, gng_stim_seq[ind_btch]] = 1-lamb
+            # S5 --> index 4, S1 --> index 0, mat_conv[S5] = 0
+            inputs[ind_btch, gng_time-1, mat_conversion[gng_stim_seq[ind_btch]]] = lamb
+                        
     # output (note that n_bits could actually be 1 here because we just
     # need one decision. I kept it as it is for the flipFlop task
     # to avoid issues in other parts of the algorithm)
     outputs = np.zeros([n_batch, n_time, n_bits])
     outputs[gt_dpa == 1, n_time-1, 0] = 1
-    outputs[gt_gng == 1, gng_time, 0] = 1
+    if gng_time != 0:
+        # distractor time = gng_time
+        outputs[gt_gng == 1, gng_time, 0] = 1
 
     # stim configuration
     stim_conf = np.concatenate((choice1.reshape(n_batch, 1),
