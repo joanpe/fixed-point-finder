@@ -9,7 +9,8 @@ import numpy as np
 import matplotlib.pylab as plt
 
 
-def get_inputs_outputs(n_batch, n_time, n_bits, gng_time, lamb=0, mat_conv=[0,1]):
+def get_inputs_outputs(n_batch, n_time, n_bits, gng_time, lamb=0,
+                       delay_max=0, mat_conv=[0, 1]):
     # inputs mat
     inputs = np.zeros([n_batch, n_time, n_bits])
     # build dpa structure
@@ -30,8 +31,12 @@ def get_inputs_outputs(n_batch, n_time, n_bits, gng_time, lamb=0, mat_conv=[0,1]
     # go over all batches (i.e. trials)
     for ind_btch in range(n_batch):
         inputs[ind_btch, 1, stim1_seq[ind_btch]] = 1
-        # dpa2 presented at time n_time - 5
-        inputs[ind_btch, n_time-5, stim2_seq[ind_btch]] = 1
+        # dpa2 presented at delay gng_time + tau. tau in range[0,9]
+        if delay_max == 0:
+           inputs[ind_btch, n_time-5, stim2_seq[ind_btch]] = 1
+        else:
+            tau = np.random.choice(delay_max, size=1)
+            inputs[ind_btch, gng_time+tau+2, stim2_seq[ind_btch]] = 1
         if gng_time != 0:
             inputs[ind_btch, gng_time-1, gng_stim_seq[ind_btch]] = 1-lamb
             # Example: S5 --> index 4, S1 --> index 0, mat_conv[S5] = 0
