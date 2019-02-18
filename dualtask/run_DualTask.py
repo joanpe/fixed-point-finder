@@ -41,9 +41,9 @@ hps = {
         'n_time': 20,
         'n_bits': 6,
         'noise': 0.05,
-        'gng_time': 10,
-        'lamb': 0.25,
-        'delay_max': 5},
+        'gng_time': 0,
+        'lamb': 0,
+        'delay_max': 17},
     'alr_hps': alr_hps
     }
 
