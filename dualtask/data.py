@@ -31,7 +31,8 @@ def get_inputs_outputs(n_batch, n_time, n_bits, gng_time, lamb=0,
     # go over all batches (i.e. trials)
     for ind_btch in range(n_batch):
         inputs[ind_btch, 1, stim1_seq[ind_btch]] = 1
-        # dpa2 presented at delay gng_time + tau. tau in range[0,9]
+        # dpa2 presented at delay gng_time + random delay between gng_time + 2
+        # and gng_time + 2 + delay_max. tau in range[0,9]
         if delay_max == 0:
            inputs[ind_btch, n_time-5, stim2_seq[ind_btch]] = 1
         else:
