@@ -28,6 +28,8 @@ def get_inputs_outputs(n_batch, n_time, n_bits, gng_time, lamb=0,
     else:
         gt_gng = np.zeros_like(choice2)
 
+    # Vector with the delays of dp2
+    vec_tau = np.zeros([n_batch, ])
     # go over all batches (i.e. trials)
     for ind_btch in range(n_batch):
         inputs[ind_btch, 1, stim1_seq[ind_btch]] = 1
@@ -36,8 +38,13 @@ def get_inputs_outputs(n_batch, n_time, n_bits, gng_time, lamb=0,
         if delay_max == 0:
            inputs[ind_btch, n_time-5, stim2_seq[ind_btch]] = 1
         else:
-            tau = np.random.choice(delay_max, size=1)
-            inputs[ind_btch, gng_time+tau+2, stim2_seq[ind_btch]] = 1
+            tau = np.random.choice(delay_max, size=1)+gng_time+2
+            if tau < n_time:
+                inputs[ind_btch, tau, stim2_seq[ind_btch]] = 1
+                # save tau in vec_tau
+                vec_tau[ind_btch] = tau
+            else:
+                raise ValueError('Delay exceed trial time.')
         if gng_time != 0:
             inputs[ind_btch, gng_time-1, gng_stim_seq[ind_btch]] = 1-lamb
             # Example: S5 --> index 4, S1 --> index 0, mat_conv[S5] = 0
@@ -58,7 +65,8 @@ def get_inputs_outputs(n_batch, n_time, n_bits, gng_time, lamb=0,
                                 choice2.reshape(n_batch, 1),
                                 gt_gng.reshape(n_batch, 1)), axis=1)
 
-    return {'inputs': inputs, 'output': outputs, 'stim_conf': stim_conf}
+    return {'inputs': inputs, 'output': outputs, 'stim_conf': stim_conf,
+            'vec_tau': vec_tau}
 
 
 def get_stims(stim, n_batch):

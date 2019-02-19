@@ -467,7 +467,8 @@ class FixedPoints(object):
              stim_config=None,
              gng_time=0,
              block=False,
-             title=''):
+             title='',
+             dpa2_time=[]):
 
         '''Plots a visualization and analysis of the unique fixed points.
 
@@ -704,8 +705,8 @@ class FixedPoints(object):
 
                 plot_123d(ax, z_idx[0, :].reshape((1, 3)), color='g',
                           marker='+', markersize=8)
-                plot_123d(ax, z_idx[-5, :].reshape((1, 3)), color='c',
-                          marker='+', markersize=8)
+                plot_123d(ax, z_idx[int(dpa2_time[batch_idx]), :].reshape((1, 3)),
+                          color='c', marker='+', markersize=8)
                 plot_123d(ax, z_idx[-1, :].reshape((1, 3)), color='m',
                           marker='x', markersize=8)
                 if gng_time != 0:
