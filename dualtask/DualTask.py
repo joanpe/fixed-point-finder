@@ -70,8 +70,7 @@ class DualTask(RecurrentWhisperer):
             'lamb': parametrization of the stimulus S5, S6. Default: 0
 
             'delay_max': Maximum delay of appearence of the dpa2. Should be
-            between             
-            Default: 5
+            between  Default: 5
 
         log_dir: string specifying the top-level directory for saving various
         training runs (where each training run is specified by a different set
@@ -104,7 +103,9 @@ class DualTask(RecurrentWhisperer):
                 'n_time': 32,
                 'n_bits': 6,
                 'gng_time': 10,
-                'noise': 0.1}
+                'noise': 0.1,
+                'lamb': 0.25,
+                'delay_max': 5}
             }
 
     @staticmethod
