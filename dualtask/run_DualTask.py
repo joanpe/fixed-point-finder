@@ -127,7 +127,7 @@ unique_fps, _ = fpf.find_fixed_points(initial_states, inputs)
 #    reshape((example_trials['stim_conf'].shape[0], 1)) + 0.000001
 # example_trials['stim_conf'] =\
 #     example_trials['stim_conf']/suma
-# colors based on S1/S2
+## colors based on S1/S2
 colors = np.zeros_like(example_trials['stim_conf'])
 colors[:, 0] = example_trials['stim_conf'][:, 0]
 f = unique_fps.plot(example_predictions['state'],
@@ -135,29 +135,32 @@ f = unique_fps.plot(example_predictions['state'],
                     plot_batch_idx=range(128),
                     gng_time=dt.hps.data_hps['gng_time'],
                     dpa2_time=example_trials['vec_tau'], title='S1/S2')
-# colors based on S3/s4
-colors = np.zeros_like(example_trials['stim_conf'])
-colors[:, 0] = example_trials['stim_conf'][:, 1]
-f = unique_fps.plot(example_predictions['state'],
-                    stim_config=colors,
-                    plot_batch_idx=range(128),
-                    gng_time=dt.hps.data_hps['gng_time'],
-                    dpa2_time=example_trials['vec_tau'], title='S3/S4')
-# colors based on S5/s6
-colors = np.zeros_like(example_trials['stim_conf'])
-colors[:, 0] = example_trials['stim_conf'][:, 2]
-f = unique_fps.plot(example_predictions['state'],
-                    stim_config=colors,
-                    plot_batch_idx=range(128),
-                    gng_time=dt.hps.data_hps['gng_time'],
-                    dpa2_time=example_trials['vec_tau'], title='S5/S6')
-
+## colors based on S3/s4
+#colors = np.zeros_like(example_trials['stim_conf'])
+#colors[:, 0] = example_trials['stim_conf'][:, 1]
+#f = unique_fps.plot(example_predictions['state'],
+#                    stim_config=colors,
+#                    plot_batch_idx=range(128),
+#                    gng_time=dt.hps.data_hps['gng_time'],
+#                    dpa2_time=example_trials['vec_tau'], title='S3/S4')
+## colors based on S5/s6
+#colors = np.zeros_like(example_trials['stim_conf'])
+#colors[:, 0] = example_trials['stim_conf'][:, 2]
+#f = unique_fps.plot(example_predictions['state'],
+#                    stim_config=colors,
+#                    plot_batch_idx=range(128),
+#                    gng_time=dt.hps.data_hps['gng_time'],
+#                    dpa2_time=example_trials['vec_tau'], title='S5/S6')
+#
 # colors based on final GO/NOGO
 colors = np.zeros_like(example_trials['stim_conf'])
 colors[:, 0] = example_trials['output'][:, -1, 0]
+idx = np.where(((example_trials['vec_tau']==18) + 
+                (example_trials['vec_tau']==4)) *
+    (example_trials['stim_conf'][:, 0]==0))[0]
 f = unique_fps.plot(example_predictions['state'],
                     stim_config=colors,
-                    plot_batch_idx=range(128),
+                    plot_batch_idx=idx,
                     gng_time=dt.hps.data_hps['gng_time'],
                     dpa2_time=example_trials['vec_tau'], block=True,
                     title='GO/NO-GO')

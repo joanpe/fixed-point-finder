@@ -416,6 +416,7 @@ class DualTask(RecurrentWhisperer):
         n_batch = self.hps.data_hps['n_batch']
         n_time = self.hps.data_hps['n_time']
         n_plot = np.min([hps.n_trials_plot, n_batch])
+        dpa2_time = data['vec_tau']
 
         f = plt.figure(self.fig.number)
         plt.clf()
@@ -435,7 +436,7 @@ class DualTask(RecurrentWhisperer):
             if n_plot == 1:
                 plt.title('Example trial', fontweight='bold')
             else:
-                plt.title('Example trial %d' % (trial_idx + 1),
+                plt.title('Example trial %d | %d' % (trial_idx + 1, dpa2_time[trial_idx]),
                           fontweight='bold')
 
             self._plot_single_trial(

@@ -686,7 +686,7 @@ class FixedPoints(object):
         if state_traj is not None:
             if plot_batch_idx is None:
                 plot_batch_idx = range(n_batch)
-
+                
             for batch_idx in plot_batch_idx:
                 x_idx = state_traj_bxtxd[batch_idx]
 
@@ -705,7 +705,7 @@ class FixedPoints(object):
 
                 plot_123d(ax, z_idx[0, :].reshape((1, 3)), color='g',
                           marker='+', markersize=8)
-                plot_123d(ax, z_idx[int(dpa2_time[batch_idx]), :].reshape((1, 3)),
+                plot_123d(ax, z_idx[int(dpa2_time[batch_idx])-1, :].reshape((1, 3)),
                           color='c', marker='+', markersize=8)
                 plot_123d(ax, z_idx[-1, :].reshape((1, 3)), color='m',
                           marker='x', markersize=8)
@@ -713,13 +713,13 @@ class FixedPoints(object):
                     plot_123d(ax, z_idx[gng_time, :].reshape((1, 3)),
                               color='b', marker='+', markersize=8)
 
-        for init_idx in range(n_inits):
-            plot_fixed_point(
-                ax,
-                xstar[init_idx:(init_idx+1)],
-                J_xstar[init_idx],
-                pca,
-                scale=mode_scale)
+#        for init_idx in range(n_inits):
+#            plot_fixed_point(
+#                ax,
+#                xstar[init_idx:(init_idx+1)],
+#                J_xstar[init_idx],
+#                pca,
+#                scale=mode_scale)
 
         plt.ion()
         plt.title(title)
